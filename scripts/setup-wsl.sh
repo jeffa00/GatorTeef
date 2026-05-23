@@ -50,6 +50,9 @@ sync_optional_private_link \
   "dotfiles/shared/tmux/tmux.conf" \
   "$(managed_private_override_path "dotfiles/shared/tmux/tmux.conf")"
 sync_optional_private_link \
+  "dotfiles/shared/nvim/theme.lua" \
+  "$(managed_private_override_path "dotfiles/shared/nvim/theme.lua")"
+sync_optional_private_link \
   "dotfiles/linux/bash/.profile" \
   "$(managed_private_override_path "dotfiles/linux/bash/.profile")"
 sync_optional_private_link \

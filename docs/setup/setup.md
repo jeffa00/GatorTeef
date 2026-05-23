@@ -226,6 +226,7 @@ When the private repo already exists, setup also creates any missing private ove
 Behavior by file type:
 
 - tmux base config: public `~/.tmux.conf` loads the private fragment after the shared baseline
+- Neovim theme selection: the shared `~/.config/nvim` config can load a private `dotfiles/shared/nvim/theme.lua` file for user-specific light/dark theme choices
 - shell files: public shell startup files source private fragments near the end
 - Ghostty: setup generates a final config from the public baseline plus appended private overrides
 - Starship: setup generates the final `~/.config/starship.toml`, but because TOML cannot safely merge duplicate keys, a private `starship.toml` acts as a full private replacement for the shared baseline

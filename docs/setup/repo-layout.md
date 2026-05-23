@@ -109,6 +109,8 @@ A sibling private overlay repo can hold personal defaults, private workspace det
     workspaces/
   dotfiles/
     shared/
+      nvim/
+        theme.lua
       tmux/
         tmux.conf
       shell/
@@ -127,7 +129,7 @@ A sibling private overlay repo can hold personal defaults, private workspace det
         config.ghostty
 ```
 
-That private overlay is where personal project names, local defaults, private paths, and user-specific shell/prompt/terminal overrides should live.
+That private overlay is where personal project names, local defaults, private paths, user-specific shell/prompt/terminal overrides, and personal Neovim theme selection should live.
 
 Wrapper discovery is expected to work like this:
 

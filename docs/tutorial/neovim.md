@@ -101,7 +101,9 @@ In practice, that means:
 - `Esc` in normal mode clears search highlighting
 - yanked text briefly highlights so you can see what was copied
 - diagnostics use rounded floating windows when they appear
-- the default colorscheme is `catppuccin-mocha`
+- without a private theme override, the default colorscheme is `catppuccin-mocha`
+- a sibling private overlay can define `dotfiles/shared/nvim/theme.lua` to choose light and dark themes separately
+- on supported systems, `auto-dark-mode.nvim` polls the OS appearance and reapplies the matching private light or dark theme while Neovim stays open
 
 ## Everyday navigation and window use
 

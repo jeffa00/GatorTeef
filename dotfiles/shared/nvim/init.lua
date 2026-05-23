@@ -54,6 +54,123 @@ local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 local uv = vim.uv or vim.loop
 local dev_environment_config_dir = vim.fs.joinpath(vim.fs.dirname(vim.fn.stdpath("config")), "dev-environment")
 local dotnet_nvim_enabled = uv.fs_stat(vim.fs.joinpath(dev_environment_config_dir, "enable-dotnet-nvim")) ~= nil
+local os_uname = uv.os_uname()
+local private_theme_config_path = vim.fs.joinpath(
+  dev_environment_config_dir,
+  "private",
+  "dotfiles",
+  "shared",
+  "nvim",
+  "theme.lua"
+)
+
+local function read_system_output(command)
+  local output = vim.fn.system(command)
+  if vim.v.shell_error ~= 0 then
+    return nil
+  end
+
+  return vim.trim(output)
+end
+
+local function detect_os_background()
+  if uv.os_uname().sysname == "Darwin" and vim.fn.executable("defaults") == 1 then
+    local appearance = read_system_output({ "defaults", "read", "-g", "AppleInterfaceStyle" })
+    if appearance == "Dark" then
+      return "dark"
+    end
+
+    return "light"
+  end
+
+  if vim.o.background == "light" then
+    return "light"
+  end
+
+  return "dark"
+end
+
+local function load_private_theme_config()
+  if not uv.fs_stat(private_theme_config_path) then
+    return nil
+  end
+
+  local ok, theme_config = pcall(dofile, private_theme_config_path)
+  if not ok then
+    error("Failed to load private Neovim theme config:\n" .. theme_config)
+  end
+
+  if type(theme_config) ~= "table" then
+    error("Private Neovim theme config must return a table:\n" .. private_theme_config_path)
+  end
+
+  return theme_config
+end
+
+local function resolve_colorscheme_for_background(background)
+  local theme_config = load_private_theme_config()
+  if not theme_config then
+    return "dark", "catppuccin-mocha"
+  end
+
+  background = background or detect_os_background()
+  local colorscheme = theme_config[background]
+
+  if type(colorscheme) ~= "string" or colorscheme == "" then
+    error(
+      string.format(
+        "Private Neovim theme config must define a non-empty %s theme:\n%s",
+        background,
+        private_theme_config_path
+      )
+    )
+  end
+
+  return background, colorscheme
+end
+
+local function apply_colorscheme(background)
+  local resolved_background, colorscheme = resolve_colorscheme_for_background(background)
+  if vim.o.background == resolved_background and vim.g.colors_name == colorscheme then
+    return
+  end
+
+  vim.o.background = resolved_background
+  vim.cmd.colorscheme(colorscheme)
+end
+
+local function should_enable_auto_dark_mode()
+  if string.match(os_uname.release, "WSL") or string.match(os_uname.release, "orbstack") then
+    return true
+  end
+
+  if os_uname.sysname == "Darwin" or os_uname.sysname == "Windows_NT" then
+    return true
+  end
+
+  return os_uname.sysname == "Linux" and vim.fn.executable("dbus-send") == 1
+end
+
+local function setup_auto_dark_mode()
+  if not should_enable_auto_dark_mode() then
+    return
+  end
+
+  require("auto-dark-mode").setup({
+    set_dark_mode = function()
+      apply_colorscheme("dark")
+    end,
+    set_light_mode = function()
+      apply_colorscheme("light")
+    end,
+    update_interval = 3000,
+    fallback = "dark",
+  })
+end
+
+local function refresh_colorscheme()
+  apply_colorscheme()
+end
 
 if not uv.fs_stat(lazypath) then
   local out = vim.fn.system({
@@ -77,9 +194,16 @@ local plugins = {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
-    config = function()
-      vim.cmd.colorscheme("catppuccin-mocha")
-    end,
+  },
+  {
+    "rebelot/kanagawa.nvim",
+    name = "kanagawa",
+    priority = 1000,
+  },
+  {
+    "f-person/auto-dark-mode.nvim",
+    lazy = false,
+    config = setup_auto_dark_mode,
   },
   {
     "nvim-lua/plenary.nvim",
@@ -186,6 +310,14 @@ end
 
 require("lazy").setup(plugins, {
   install = {
-    colorscheme = { "catppuccin", "habamax" },
+    colorscheme = { "kanagawa", "catppuccin", "habamax" },
   },
+})
+
+refresh_colorscheme()
+
+vim.api.nvim_create_autocmd({ "FocusGained", "VimResume" }, {
+  desc = "Refresh colorscheme when the OS appearance changes",
+  group = vim.api.nvim_create_augroup("refresh-colorscheme", { clear = true }),
+  callback = refresh_colorscheme,
 })

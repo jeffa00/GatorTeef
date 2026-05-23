@@ -99,6 +99,10 @@ scaffold_shared_private_overrides() {
     "dotfiles/shared/tmux/tmux.conf" \
     $'# Private tmux overrides loaded after the public baseline.\n'
 
+  scaffold_private_override_file \
+    "dotfiles/shared/nvim/theme.lua" \
+    $'-- Private Neovim theme selection loaded from the shared baseline.\n-- Define the colorscheme to use for each OS appearance.\nreturn {\n  light = "catppuccin-latte",\n  dark = "catppuccin-mocha",\n}\n'
+
   scaffold_private_override_from_public_file \
     "dotfiles/shared/shell/starship.toml"
 }
