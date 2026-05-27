@@ -152,18 +152,19 @@ At a high level, the bootstrap script:
 2. Installs packages from the repo-managed manifest:
    - `Brewfile` on macOS
    - `packages/apt.txt` on Ubuntu and WSL
-3. Installs or manages the terminal layer for the platform:
+3. Installs Starship directly on Ubuntu and WSL into `~/.local/bin`.
+4. Installs or manages the terminal layer for the platform:
    - macOS: installs Ghostty through Homebrew
    - Ubuntu: adds the Ghostty Ubuntu PPA and installs Ghostty
    - WSL: skips Ghostty and uses Windows Terminal instead
-4. Installs JetBrains Mono Nerd Font.
-5. Symlinks the managed config files for the shell, Starship, tmux, and Neovim.
-6. Backs up existing unmanaged files before replacing them with tracked symlinks.
-7. Validates key tools such as `tmux`, `nvim`, `ghostty` (where applicable), and `starship`.
-8. Optionally installs `tmuxinator` when you pass `--install-tmuxinator`.
-9. Optionally installs the .NET 10 SDK when you pass `--install-dotnet`.
-10. Optionally enables the Neovim .NET layer when you pass `--enable-dotnet-nvim`.
-11. Applies optional private overrides from a sibling `dev-environment-private` repo when those files exist.
+5. Installs JetBrains Mono Nerd Font.
+6. Symlinks the managed config files for the shell, Starship, tmux, and Neovim.
+7. Backs up existing unmanaged files before replacing them with tracked symlinks.
+8. Validates key tools such as `tmux`, `nvim`, `ghostty` (where applicable), and `starship`.
+9. Optionally installs `tmuxinator` when you pass `--install-tmuxinator`.
+10. Optionally installs the .NET 10 SDK when you pass `--install-dotnet`.
+11. Optionally enables the Neovim .NET layer when you pass `--enable-dotnet-nvim`.
+12. Applies optional private overrides from a sibling `dev-environment-private` repo when those files exist.
 
 Backups use a timestamped suffix such as `.backup.YYYYMMDD-HHMMSS`.
 
@@ -245,6 +246,7 @@ Behavior by file type:
 - Only Ubuntu is supported by the Linux path.
 - Uses the tracked `bash` files: `.profile` and `.bashrc`.
 - Installs packages from `packages/apt.txt`.
+- Installs Starship directly into `~/.local/bin`.
 - Installs Ghostty from `ppa:mkasberg/ghostty-ubuntu`.
 - Installs JetBrains Mono Nerd Font under `~/.local/share/fonts/JetBrainsMonoNerdFont`.
 
@@ -252,6 +254,7 @@ Behavior by file type:
 
 - WSL is treated separately from standalone Linux.
 - Uses the Ubuntu package manifest and the tracked `bash` config.
+- Installs Starship directly into `~/.local/bin`.
 - Does **not** install Ghostty.
 - Optionally links the repository's Windows Terminal `settings.json` into the Windows user profile when you pass `--apply-windows-terminal`.
 - The Windows Terminal link is created through `cmd.exe` and `wslpath`, so it must be run from inside WSL.

@@ -8,6 +8,8 @@ Starship is the managed shell prompt for this environment. The final `~/.config/
 
 The shell changes by platform, but the prompt design stays the same.
 
+On Ubuntu and WSL, setup installs the `starship` binary directly into `~/.local/bin` instead of relying on the distro package repository.
+
 ## Where this prompt comes from
 
 This repo initializes Starship in the platform shell files:

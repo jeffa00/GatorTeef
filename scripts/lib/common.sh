@@ -116,6 +116,41 @@ install_ghostty_ubuntu() {
   run sudo apt-get install -y ghostty
 }
 
+install_starship() {
+  local temp_dir
+  local install_script
+
+  if [ -x "$HOME/.local/bin/starship" ]; then
+    export PATH="$HOME/.local/bin:$PATH"
+    log "starship already installed in $HOME/.local/bin"
+    return
+  fi
+
+  if command_exists starship; then
+    log "starship already installed"
+    return
+  fi
+
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "mkdir -p $HOME/.local/bin"
+    log "curl -fsSL -o <temp>/starship-install.sh https://starship.rs/install.sh"
+    log "sh <temp>/starship-install.sh --yes --bin-dir $HOME/.local/bin"
+    return
+  fi
+
+  temp_dir="$(mktemp -d)"
+  trap 'rm -rf "$temp_dir"' RETURN
+  install_script="$temp_dir/starship-install.sh"
+
+  run mkdir -p "$HOME/.local/bin"
+  run curl -fsSL -o "$install_script" https://starship.rs/install.sh
+  run sh "$install_script" --yes --bin-dir "$HOME/.local/bin"
+  run rm -rf "$temp_dir"
+  trap - RETURN
+
+  export PATH="$HOME/.local/bin:$PATH"
+}
+
 install_dotnet_macos() {
   if brew list --formula dotnet >/dev/null 2>&1; then
     log ".NET SDK already installed through Homebrew"

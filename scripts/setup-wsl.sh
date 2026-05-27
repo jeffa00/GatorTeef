@@ -29,6 +29,7 @@ apply_windows_terminal_template() {
 log "Installing Ubuntu packages for WSL"
 run sudo apt-get update
 run xargs -a "$REPO_ROOT/packages/apt.txt" sudo apt-get install -y
+install_starship
 
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   log "Installing optional tmux workspace backend"

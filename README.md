@@ -15,7 +15,7 @@ This repo manages the terminal/editor layer only. It does **not** try to do full
 The setup links managed config into standard home-directory locations such as shell startup files, `~/.tmux.conf`, `~/.config/nvim`, `~/.config/starship.toml`, Ghostty config, and, on WSL with opt-in, Windows Terminal `settings.json`.
 
 - package install via `Brewfile` on macOS
-- package install via `packages/apt.txt` on Ubuntu and WSL
+- package install via `packages/apt.txt` plus direct Starship install on Ubuntu and WSL
 - shared `tmux`, Neovim, and Starship config in `dotfiles/shared/`
 - macOS `zsh` and Ghostty config in `dotfiles/macos/`
 - Ubuntu `bash` and Ghostty config in `dotfiles/linux/`
