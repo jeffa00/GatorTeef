@@ -11,6 +11,7 @@ opt.mouse = "a"
 opt.clipboard = "unnamedplus"
 opt.breakindent = true
 opt.undofile = true
+opt.autoread = true
 opt.ignorecase = true
 opt.smartcase = true
 opt.updatetime = 250
@@ -315,6 +316,16 @@ require("lazy").setup(plugins, {
 })
 
 refresh_colorscheme()
+
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI" }, {
+  desc = "Reload files changed outside of Neovim",
+  group = vim.api.nvim_create_augroup("checktime", { clear = true }),
+  callback = function()
+    if vim.fn.mode() ~= "c" then
+      vim.cmd("checktime")
+    end
+  end,
+})
 
 vim.api.nvim_create_autocmd({ "FocusGained", "VimResume" }, {
   desc = "Refresh colorscheme when the OS appearance changes",
