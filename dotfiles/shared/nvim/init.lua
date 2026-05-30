@@ -1,5 +1,7 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
 
@@ -225,6 +227,45 @@ local plugins = {
   {
     "nvim-tree/nvim-web-devicons",
     lazy = true,
+  },
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    branch = "v3.x",
+    cmd = "Neotree",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-tree/nvim-web-devicons",
+      "MunifTanjim/nui.nvim",
+    },
+    keys = {
+      { "<leader>e", "<cmd>Neotree toggle filesystem reveal left<CR>", desc = "Toggle file tree" },
+    },
+    opts = {
+      close_if_last_window = true,
+      enable_diagnostics = true,
+      popup_border_style = "rounded",
+      filesystem = {
+        filtered_items = {
+          hide_dotfiles = false,
+          hide_gitignored = false,
+          hide_hidden = false,
+        },
+        follow_current_file = {
+          enabled = true,
+          leave_dirs_open = false,
+        },
+        hijack_netrw_behavior = "open_default",
+        use_libuv_file_watcher = true,
+      },
+      window = {
+        mappings = {
+          ["<space>"] = false,
+          H = "toggle_hidden",
+        },
+        position = "left",
+        width = 32,
+      },
+    },
   },
   {
     "nvim-telescope/telescope.nvim",

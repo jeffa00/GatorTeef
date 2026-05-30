@@ -9,12 +9,13 @@ This Neovim config is intentionally small and practical:
 - plain Neovim with a shared `init.lua`
 - plugin management through `lazy.nvim`
 - fast file and text search through Telescope
+- file browsing through Neo-tree
 - syntax support through treesitter
 - markdown-friendly preview tools through Markview
 - a few opinionated defaults for navigation, clipboard, splits, and indentation
 - an optional .NET layer that can be enabled separately when you want C# support
 
-It is **not** a heavily customized IDE. By default there is no repo-managed LSP, completion framework, file tree, or large custom command layer. Expect a clean editor with a few well-chosen tools.
+It is **not** a heavily customized IDE. By default there is no repo-managed LSP, completion framework, or large custom command layer. Expect a clean editor with a few well-chosen tools.
 
 ## Launching Neovim
 
@@ -139,10 +140,11 @@ Because splits open right and below by default, the layout is predictable.
 
 ## File search and workspace search
 
-This setup uses Telescope for the main search flows.
+This setup uses Telescope for the main search flows and Neo-tree when you want a persistent file sidebar.
 
 ### Keybindings
 
+- `Space e` — toggle the Neo-tree file sidebar and reveal the current file
 - `Space f f` — find files
 - `Space f g` — live grep text in the current working directory
 - `Space f b` — switch buffers
@@ -167,6 +169,27 @@ Example:
 3. `Space f f`
 4. type `tmux`
 5. press Enter on the note you want
+
+#### Browse the working tree
+
+If you want a visible sidebar instead of search-first navigation, press:
+
+```text
+Space e
+```
+
+That toggles Neo-tree on the left side, shows dotfiles and gitignored files, follows the file you have open, and shows diagnostics in the tree.
+
+Practical uses:
+
+- browse nearby files without leaving the keyboard
+- expand directories while staying in the current project
+- keep a file tree open in one split while editing in another
+- work comfortably in repos where important config lives in hidden files like `.gitignore`, `.bashrc`, or `.env`
+
+Within the Neo-tree window, use `Enter` to open a file or expand/collapse a directory.
+
+While Neo-tree is focused, press `H` to toggle hidden and filtered items on or off.
 
 #### Search across a repo or notes directory
 
@@ -194,6 +217,7 @@ This is the quick way to bounce between a few active buffers without reopening t
 
 - `find_files` is best when you roughly know the filename
 - `live_grep` is best when you know text inside the file
+- Neo-tree is best when you want to browse the project structure visually
 - searches are rooted in the directory where you launched Neovim
 - this setup installs `fd`, `fzf`, and `ripgrep`, so the search workflow is designed around those command-line tools being present
 
@@ -327,7 +351,6 @@ To avoid confusion, here is what this managed setup does **not** currently provi
 
 - no repo-managed language server setup by default
 - no repo-managed autocompletion framework
-- no repo-managed file tree sidebar
 - no large custom command palette beyond Telescope and which-key
 - no custom cross-over tmux/Neovim navigation plugin
 
@@ -448,7 +471,6 @@ Usually one of these is true:
 
 - you launched Neovim from the wrong directory
 - the file is outside the current working tree
-- you are expecting a file browser, but this setup is centered on Telescope search instead
 
 A reliable fix is:
 
@@ -456,6 +478,8 @@ A reliable fix is:
 cd /path/to/project
 nvim .
 ```
+
+If you want to browse instead of search, use `Space e` to open Neo-tree.
 
 ### Clipboard copy/paste feels wrong
 
