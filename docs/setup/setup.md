@@ -257,7 +257,8 @@ Behavior by file type:
 - Installs Starship directly into `~/.local/bin`.
 - Does **not** install Ghostty.
 - Optionally links the repository's Windows Terminal `settings.json` into the Windows user profile when you pass `--apply-windows-terminal`.
-- The Windows Terminal link is created through `cmd.exe` and `wslpath`, so it must be run from inside WSL.
+- Before replacing that file or link, setup writes a timestamped backup beside the existing Windows Terminal `settings.json`.
+- The Windows Terminal link is created as a Windows-native symlink to a Windows-visible path, so it must be run from inside WSL.
 
 ## Manual follow-up after the script finishes
 

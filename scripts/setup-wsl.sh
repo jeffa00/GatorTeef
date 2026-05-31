@@ -15,15 +15,69 @@ apply_windows_terminal_template() {
   local windows_local_appdata
   local windows_settings_path
   local destination_path
+  local source_path
+  local source_windows_path
+  local current_target
+  local escaped_windows_settings_path
+  local escaped_source_windows_path
+
+  backup_windows_terminal_settings() {
+    local backup_path
+    local backup_windows_path
+    local escaped_backup_windows_path
+
+    backup_path="${destination_path}.backup.$(timestamp)"
+    backup_windows_path="$(wslpath -w "$backup_path" 2>/dev/null | tr -d '\r')"
+
+    [ -n "$backup_windows_path" ] || die "Unable to convert Windows Terminal backup path for Windows access."
+
+    escaped_backup_windows_path="${backup_windows_path//\'/\'\'}"
+
+    if [ "${DRY_RUN:-0}" -eq 1 ]; then
+      log "powershell.exe -NoProfile -Command Move-Item -LiteralPath '$windows_settings_path' -Destination '$backup_windows_path' -Force"
+      return
+    fi
+
+    log "Backing up Windows Terminal settings to $backup_windows_path"
+    powershell.exe -NoProfile -Command "Move-Item -LiteralPath '$escaped_windows_settings_path' -Destination '$escaped_backup_windows_path' -Force -ErrorAction Stop" >/dev/null
+  }
 
   windows_local_appdata="$(cmd.exe /c "echo %LOCALAPPDATA%" 2>/dev/null | tr -d '\r')"
   [ -n "$windows_local_appdata" ] || die "Unable to determine Windows LOCALAPPDATA from WSL."
 
   windows_settings_path="$windows_local_appdata\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json"
   destination_path="$(wslpath "$windows_settings_path")"
+  source_path="$REPO_ROOT/dotfiles/wsl/windows-terminal/settings.json"
+  source_windows_path="$(wslpath -w "$source_path" 2>/dev/null | tr -d '\r')"
+
+  [ -n "$source_windows_path" ] || die "Unable to convert Windows Terminal template path for Windows access."
 
   ensure_dir "$(dirname "$destination_path")"
-  link_file "$REPO_ROOT/dotfiles/wsl/windows-terminal/settings.json" "$destination_path"
+
+  escaped_windows_settings_path="${windows_settings_path//\'/\'\'}"
+  escaped_source_windows_path="${source_windows_path//\'/\'\'}"
+
+  current_target="$(
+    powershell.exe -NoProfile -Command "\$item = Get-Item -LiteralPath '$escaped_windows_settings_path' -ErrorAction SilentlyContinue; if (\$null -ne \$item -and \$item.LinkType -eq 'SymbolicLink') { [Console]::Write(\$item.Target) }" 2>/dev/null \
+      | tr -d '\r'
+  )"
+
+  if [ -n "$current_target" ] && [ "$current_target" = "$source_windows_path" ]; then
+    log "Already linked: $windows_settings_path"
+    return
+  fi
+
+  if [ -e "$destination_path" ] || [ -L "$destination_path" ]; then
+    backup_windows_terminal_settings
+  fi
+
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "powershell.exe -NoProfile -Command New-Item -ItemType SymbolicLink -Path '$windows_settings_path' -Target '$source_windows_path'"
+    return
+  fi
+
+  log "Creating Windows Terminal symlink"
+  powershell.exe -NoProfile -Command "New-Item -ItemType SymbolicLink -Path '$escaped_windows_settings_path' -Target '$escaped_source_windows_path' -ErrorAction Stop | Out-Null" >/dev/null
 }
 
 log "Installing Ubuntu packages for WSL"
