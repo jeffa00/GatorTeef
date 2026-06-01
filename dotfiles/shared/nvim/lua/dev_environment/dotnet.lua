@@ -51,13 +51,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 return {
   {
     "williamboman/mason.nvim",
-    cmd = {
-      "Mason",
-      "MasonInstall",
-      "MasonLog",
-      "MasonUninstall",
-      "MasonUpdate",
-    },
+    lazy = false,
     opts = {
       registries = {
         "github:mason-org/mason-registry",
@@ -67,6 +61,9 @@ return {
   },
   {
     "neovim/nvim-lspconfig",
+    dependencies = {
+      "williamboman/mason.nvim",
+    },
     ft = "cs",
     config = function()
       if vim.fn.executable("roslyn") ~= 1 then
@@ -87,6 +84,24 @@ return {
           vim.fs.joinpath(uv.os_tmpdir(), "roslyn_ls", "logs"),
           "--stdio",
         },
+        root_dir = function(bufnr, on_dir)
+          local fname = vim.api.nvim_buf_get_name(bufnr)
+
+          local sln = vim.fs.find(function(name)
+            return name:match("%.sln$")
+          end, { upward = true, path = fname, type = "file" })[1]
+          if sln then
+            on_dir(vim.fs.dirname(sln))
+            return
+          end
+
+          local csproj = vim.fs.find(function(name)
+            return name:match("%.csproj$")
+          end, { upward = true, path = fname, type = "file" })[1]
+          if csproj then
+            on_dir(vim.fs.dirname(csproj))
+          end
+        end,
         settings = {
           ["csharp|background_analysis"] = {
             dotnet_analyzer_diagnostics_scope = "openFiles",
@@ -106,6 +121,9 @@ return {
   },
   {
     "mfussenegger/nvim-dap",
+    dependencies = {
+      "williamboman/mason.nvim",
+    },
     ft = "cs",
     config = function()
       local dap = require("dap")
