@@ -60,7 +60,13 @@ require_apt() {
 require_ubuntu() {
   [ -f /etc/os-release ] || die "Cannot determine Linux distribution."
   . /etc/os-release
-  [ "${ID:-}" = "ubuntu" ] || die "This setup currently supports Ubuntu for Linux/WSL."
+  case "${ID:-} ${ID_LIKE:-}" in
+    ubuntu\ *|*\ ubuntu|*\ ubuntu\ *)
+      ;;
+    *)
+      die "This setup currently supports Ubuntu and Ubuntu-based distros (such as Pop!_OS) on Linux and WSL. Detected: ${PRETTY_NAME:-${ID:-unknown}}."
+      ;;
+  esac
 }
 
 ubuntu_version() {
