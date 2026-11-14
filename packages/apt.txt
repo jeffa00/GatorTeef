@@ -4,7 +4,6 @@ fd-find
 fontconfig
 fzf
 git
-neovim
 ripgrep
 software-properties-common
 tree-sitter-cli

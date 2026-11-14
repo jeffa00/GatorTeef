@@ -15,6 +15,7 @@ log "Installing Ubuntu packages"
 run sudo apt-get update
 run xargs -a "$REPO_ROOT/packages/apt.txt" sudo apt-get install -y
 install_starship
+install_neovim_linux
 
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   log "Installing optional tmux workspace backend"

@@ -157,6 +157,73 @@ install_starship() {
   export PATH="$HOME/.local/bin:$PATH"
 }
 
+# Neovim on Linux/WSL comes from the official release tarball instead of apt:
+# the pinned nvim-treesitter (main branch) needs Neovim 0.12+, and Ubuntu's
+# apt package lags behind. Keep this in step with the macOS Homebrew version.
+# Digests are the sha256 values GitHub publishes for each release asset.
+NEOVIM_VERSION="0.12.4"
+
+neovim_linux_asset() {
+  case "$(uname -m)" in
+    x86_64|amd64)
+      printf '%s %s\n' "nvim-linux-x86_64" "012bf3fcac5ade43914df3f174668bf64d05e049a4f032a388c027b1ebd78628"
+      ;;
+    aarch64|arm64)
+      printf '%s %s\n' "nvim-linux-arm64" "ceb7e88c6b681f0515d135dcdfad54f5eb4373b25ce6172197cd9a69c758063f"
+      ;;
+    *)
+      die "No Neovim release tarball for architecture: $(uname -m)"
+      ;;
+  esac
+}
+
+install_neovim_linux() {
+  local asset_name
+  local asset_sha256
+  local install_root
+  local url
+  local temp_dir
+  local tarball
+
+  read -r asset_name asset_sha256 < <(neovim_linux_asset)
+  install_root="$HOME/.local/opt/nvim-$NEOVIM_VERSION"
+  url="https://github.com/neovim/neovim/releases/download/v$NEOVIM_VERSION/$asset_name.tar.gz"
+
+  if [ -x "$install_root/bin/nvim" ]; then
+    log "Neovim $NEOVIM_VERSION already installed in $install_root"
+  elif [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "curl -fsSL -o <temp>/$asset_name.tar.gz $url"
+    log "verify sha256 $asset_sha256"
+    log "tar -xzf <temp>/$asset_name.tar.gz and move to $install_root"
+    log "ln -s $install_root/bin/nvim $HOME/.local/bin/nvim"
+    return
+  else
+    temp_dir="$(mktemp -d)"
+    trap 'rm -rf "$temp_dir"' RETURN
+    tarball="$temp_dir/$asset_name.tar.gz"
+
+    run mkdir -p "$HOME/.local/opt"
+    run curl -fsSL -o "$tarball" "$url"
+    log "Verifying sha256 of $asset_name.tar.gz"
+    # die exits without firing the RETURN trap, so clean up explicitly first.
+    if ! printf '%s  %s\n' "$asset_sha256" "$tarball" | sha256sum -c --quiet -; then
+      rm -rf "$temp_dir"
+      die "Checksum mismatch for $url"
+    fi
+    run tar -xzf "$tarball" -C "$temp_dir"
+    if [ ! -x "$temp_dir/$asset_name/bin/nvim" ]; then
+      rm -rf "$temp_dir"
+      die "Unexpected Neovim tarball layout: $asset_name/bin/nvim missing"
+    fi
+    run mv "$temp_dir/$asset_name" "$install_root"
+    run rm -rf "$temp_dir"
+    trap - RETURN
+  fi
+
+  link_file "$install_root/bin/nvim" "$HOME/.local/bin/nvim"
+  export PATH="$HOME/.local/bin:$PATH"
+}
+
 install_dotnet_macos() {
   if brew list --formula dotnet >/dev/null 2>&1; then
     log ".NET SDK already installed through Homebrew"

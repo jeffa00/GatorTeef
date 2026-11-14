@@ -74,8 +74,8 @@ This overlay does not replace the shared editor or prompt layer. It only adds th
 
 - `scripts/setup.sh` is the dispatcher. It detects the platform and hands off to the matching setup script.
 - `scripts/setup-macos.sh` installs packages from `Brewfile` and links the macOS + shared config.
-- `scripts/setup-linux.sh` installs packages from `packages/apt.txt`, installs Starship directly, installs Ghostty and the Nerd Font, and links the Linux + shared config.
-- `scripts/setup-wsl.sh` installs packages from `packages/apt.txt`, installs Starship directly, links the Linux shell files plus shared config, and can also link the WSL Windows Terminal template.
+- `scripts/setup-linux.sh` installs packages from `packages/apt.txt`, installs Starship and the pinned Neovim release directly, installs Ghostty and the Nerd Font, and links the Linux + shared config.
+- `scripts/setup-wsl.sh` installs packages from `packages/apt.txt`, installs Starship and the pinned Neovim release directly, links the Linux shell files plus shared config, and can also link the WSL Windows Terminal template.
 - `scripts/lib/common.sh` owns shared helpers such as platform detection, package-manager checks, optional installers, and command validation.
 - `scripts/lib/linking.sh` owns directory creation, backup behavior, and all symlink creation through `link_file` and `link_dir`.
 

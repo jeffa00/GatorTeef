@@ -152,7 +152,7 @@ At a high level, the bootstrap script:
 2. Installs packages from the repo-managed manifest:
    - `Brewfile` on macOS
    - `packages/apt.txt` on Ubuntu and WSL
-3. Installs Starship directly on Ubuntu and WSL into `~/.local/bin`.
+3. Installs Starship directly on Ubuntu and WSL into `~/.local/bin`, plus the pinned Neovim release (`NEOVIM_VERSION` in `scripts/lib/common.sh`) into `~/.local/opt/nvim-<version>`, linked as `~/.local/bin/nvim`. Ubuntu's apt Neovim is too old for the pinned nvim-treesitter (needs 0.12+).
 4. Installs or manages the terminal layer for the platform:
    - macOS: installs Ghostty through Homebrew
    - Ubuntu: adds the Ghostty Ubuntu PPA and installs Ghostty
@@ -247,6 +247,7 @@ Behavior by file type:
 - Uses the tracked `bash` files: `.profile` and `.bashrc`.
 - Installs packages from `packages/apt.txt`.
 - Installs Starship directly into `~/.local/bin`.
+- Installs the pinned Neovim release into `~/.local/opt/nvim-<version>` and links it to `~/.local/bin/nvim`.
 - Installs Ghostty from `ppa:mkasberg/ghostty-ubuntu`.
 - Installs JetBrains Mono Nerd Font under `~/.local/share/fonts/JetBrainsMonoNerdFont`.
 
@@ -255,6 +256,7 @@ Behavior by file type:
 - WSL is treated separately from standalone Linux.
 - Uses the Ubuntu package manifest and the tracked `bash` config.
 - Installs Starship directly into `~/.local/bin`.
+- Installs the pinned Neovim release into `~/.local/opt/nvim-<version>` and links it to `~/.local/bin/nvim`.
 - Does **not** install Ghostty.
 - Optionally links the repository's Windows Terminal `settings.json` into the Windows user profile when you pass `--apply-windows-terminal`.
 - Before replacing that file or link, setup writes a timestamped backup beside the existing Windows Terminal `settings.json`.
