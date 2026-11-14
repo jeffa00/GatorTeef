@@ -197,7 +197,9 @@ print_paths() {
   printf '\nRepositories\n'
   printf '  public repo root: %s\n' "$REPO_ROOT"
   printf '  private repo root: %s\n' "$private_repo_root"
-  if [ -d "$private_repo_root" ]; then
+  if private_repo_is_public_clone; then
+    printf '  private repo present: yes, but ignored (it is a copy of this public repo)\n'
+  elif [ -d "$private_repo_root" ]; then
     printf '  private repo present: yes\n'
   else
     printf '  private repo present: no\n'
@@ -287,7 +289,11 @@ run_doctor() {
     printf 'warn  tmux backend missing: %s\n' "$SCRIPT_DIR/tmux-session.sh"
     issues=$((issues + 1))
   fi
-  if [ -d "$private_repo_root" ]; then
+  if private_repo_is_public_clone; then
+    printf 'warn  private repo is a copy of this public repo and is ignored: %s\n' "$private_repo_root"
+    printf '      move it aside and clone your real private overlay repo there, or set PRIVATE_REPO_ROOT\n'
+    issues=$((issues + 1))
+  elif [ -d "$private_repo_root" ]; then
     printf 'ok    private repo present: %s\n' "$private_repo_root"
   else
     printf 'warn  private repo not found: %s\n' "$private_repo_root"

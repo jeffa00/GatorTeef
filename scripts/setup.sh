@@ -10,6 +10,7 @@ INSTALL_DOTNET=0
 ENABLE_DOTNET_NVIM=0
 
 source "$SCRIPT_DIR/lib/common.sh"
+source "$SCRIPT_DIR/lib/private-overrides.sh"
 
 print_help() {
   cat <<'EOF'
@@ -66,6 +67,8 @@ export INSTALL_TMUXINATOR
 export INSTALL_DOTNET
 export ENABLE_DOTNET_NVIM
 export REPO_ROOT
+
+warn_if_private_repo_is_public_clone
 
 case "$(detect_platform)" in
   macos)

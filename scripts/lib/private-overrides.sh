@@ -10,8 +10,41 @@ dev_env_private_repo_root() {
   fi
 }
 
+# True when the configured private repo is actually a clone or copy of this
+# public repo (for example the old public "dev-environment" repo cloned under
+# the private name). Treating it as an overlay makes every public file its
+# own override, which loops forever in shells and tmux.
+private_repo_is_public_clone() {
+  local private_root
+  local public_root_commit
+
+  private_root="$(dev_env_private_repo_root)"
+  [ -d "$private_root" ] || return 1
+
+  if [ -f "$private_root/scripts/te" ] && [ -f "$private_root/scripts/setup.sh" ]; then
+    return 0
+  fi
+
+  if command_exists git && [ -e "$private_root/.git" ] && [ -e "$REPO_ROOT/.git" ]; then
+    while IFS= read -r public_root_commit; do
+      [ -n "$public_root_commit" ] || continue
+      if git -C "$private_root" cat-file -e "${public_root_commit}^{commit}" 2>/dev/null; then
+        return 0
+      fi
+    done < <(git -C "$REPO_ROOT" rev-list --max-parents=0 HEAD 2>/dev/null)
+  fi
+
+  return 1
+}
+
+warn_if_private_repo_is_public_clone() {
+  if private_repo_is_public_clone; then
+    warn "The private repo at $(dev_env_private_repo_root) is a copy of this public repo, not a private overlay. Ignoring it: no private overrides will be linked. Move it aside and clone your real private overlay repo there, or set PRIVATE_REPO_ROOT."
+  fi
+}
+
 private_repo_available() {
-  [ -d "$(dev_env_private_repo_root)" ]
+  [ -d "$(dev_env_private_repo_root)" ] && ! private_repo_is_public_clone
 }
 
 private_override_file() {
@@ -19,6 +52,7 @@ private_override_file() {
   local candidate
 
   relative_path="$1"
+  private_repo_available || return 0
   candidate="$(dev_env_private_repo_root)/$relative_path"
 
   if [ -f "$candidate" ]; then
@@ -151,7 +185,7 @@ scaffold_private_overrides_for_platform() {
   platform="$1"
 
   if ! private_repo_available; then
-    log "Private repo not found; skipping private override scaffolding"
+    log "No usable private repo; skipping private override scaffolding"
     return
   fi
 
