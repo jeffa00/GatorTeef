@@ -341,13 +341,18 @@ local plugins = {
   },
 }
 
-if dotnet_nvim_enabled then
-  local ok, dotnet_plugins = pcall(require, "dev_environment.dotnet")
+-- The .NET plugin specs are always declared (with `cond`) so lazy-lock.json
+-- stays identical across machines; they only load when the layer is enabled.
+do
+  local ok, dotnet = pcall(require, "dev_environment.dotnet")
   if not ok then
-    error("Failed to load optional .NET Neovim config:\n" .. dotnet_plugins)
+    error("Failed to load optional .NET Neovim config:\n" .. dotnet)
   end
 
-  vim.list_extend(plugins, dotnet_plugins)
+  vim.list_extend(plugins, dotnet.plugins(dotnet_nvim_enabled))
+  if dotnet_nvim_enabled then
+    dotnet.setup()
+  end
 end
 
 require("lazy").setup(plugins, {
