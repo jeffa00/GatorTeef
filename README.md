@@ -81,6 +81,22 @@ Re-running `te setup` is expected.
 - `dotfiles/wsl/` adds the Windows-side Terminal overlay used with WSL
 - `scripts/setup.sh` detects the platform and dispatches to the matching setup script
 
+## Private overlay repo
+
+Personal overrides, private tmux defaults, and private workspaces live in an optional, separate private repo. The scripts look for it as a sibling of this repo, under the exact name `dev-environment-private`:
+
+```text
+repos/
+├── gatorteef/                 # this repo
+└── dev-environment-private/   # private overlay (optional)
+```
+
+- the default path is `../dev-environment-private`, resolved in `scripts/lib/private-overrides.sh` and `scripts/tmux-session.sh`
+- the name is `dev-environment-private` even though this repo is now `gatorteef`; renaming the private repo (for example to `gatorteef-private`) breaks discovery unless you also set an override
+- to keep it somewhere else or under another name, set `PRIVATE_REPO_ROOT` or `DEV_ENV_PRIVATE_REPO` to its path
+- `te doctor` and `te paths` report the resolved private repo root and whether it was found
+- `$HOME/.config/dev-environment/private/...` paths in the shell, tmux, and Neovim configs are where setup links the private override files; they are not the repo's location
+
 ## Notes
 
 - Ghostty is part of the managed setup on macOS and standalone Ubuntu, not WSL
