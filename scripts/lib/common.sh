@@ -101,6 +101,14 @@ install_nerd_font_ubuntu() {
     return
   fi
 
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "mkdir -p $font_dir"
+    log "curl -fsSL -o <temp>/JetBrainsMono.zip https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+    log "unzip -o <temp>/JetBrainsMono.zip -d $font_dir"
+    log "fc-cache -f $HOME/.local/share/fonts"
+    return
+  fi
+
   temp_dir="$(mktemp -d)"
   zip_path="$temp_dir/JetBrainsMono.zip"
 
