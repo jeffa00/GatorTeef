@@ -198,6 +198,20 @@ remove_managed_optional_file() {
   fi
 }
 
+# True when a private override references its own managed path outside a
+# comment. The public baseline already loads that path, so a file that
+# sources it again loops forever (bash segfaults, tmux hits its nesting limit).
+private_override_references_itself() {
+  local private_relative_path
+  local private_source
+
+  private_relative_path="$1"
+  private_source="$2"
+
+  grep -v '^[[:space:]]*#' "$private_source" \
+    | grep -Fq "dev-environment/private/$private_relative_path"
+}
+
 sync_optional_private_link() {
   local private_relative_path
   local managed_destination
@@ -206,6 +220,12 @@ sync_optional_private_link() {
   private_relative_path="$1"
   managed_destination="$2"
   private_source="$(private_override_file "$private_relative_path" || true)"
+
+  if [ -n "$private_source" ] && private_override_references_itself "$private_relative_path" "$private_source"; then
+    warn "Not linking private override $private_source: it references its own managed path (dev-environment/private/$private_relative_path), which the public baseline already loads, so it would loop forever. Remove that reference and re-run setup."
+    remove_managed_optional_file "$managed_destination"
+    return
+  fi
 
   if [ -n "$private_source" ]; then
     link_file "$private_source" "$managed_destination"
