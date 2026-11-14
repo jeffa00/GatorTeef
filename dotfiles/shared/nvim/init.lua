@@ -188,6 +188,20 @@ if not uv.fs_stat(lazypath) then
   if vim.v.shell_error ~= 0 then
     error("Failed to clone lazy.nvim:\n" .. out)
   end
+
+  -- Check out the commit pinned in lazy-lock.json. Otherwise a fresh machine
+  -- runs whatever `stable` points at and rewrites the lockfile on first start.
+  local lockfile = vim.fs.joinpath(vim.fn.stdpath("config"), "lazy-lock.json")
+  local ok, lock = pcall(function()
+    return vim.json.decode(table.concat(vim.fn.readfile(lockfile), "\n"))
+  end)
+  local pinned = ok and type(lock) == "table" and lock["lazy.nvim"] and lock["lazy.nvim"].commit
+  if pinned then
+    out = vim.fn.system({ "git", "-C", lazypath, "checkout", "--quiet", pinned })
+    if vim.v.shell_error ~= 0 then
+      vim.notify("Could not check out pinned lazy.nvim " .. pinned .. ":\n" .. out, vim.log.levels.WARN)
+    end
+  end
 end
 
 vim.opt.rtp:prepend(lazypath)
