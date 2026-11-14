@@ -19,6 +19,7 @@ tmux/
   sessions/   # public tmux session templates
   workspaces/ # public multi-session workspace definitions
 scripts/
+  te                # user-facing CLI (linked to ~/.local/bin/te)
   setup.sh
   tmux-session.sh
   setup-macos.sh
@@ -27,6 +28,7 @@ scripts/
   lib/
     common.sh
     linking.sh
+    private-overrides.sh
 ```
 
 ## Shared core vs platform overlays
@@ -78,6 +80,8 @@ This overlay does not replace the shared editor or prompt layer. It only adds th
 - `scripts/setup-wsl.sh` installs packages from `packages/apt.txt`, installs Starship and the pinned Neovim release directly, links the Linux shell files plus shared config, and can also link the WSL Windows Terminal template.
 - `scripts/lib/common.sh` owns shared helpers such as platform detection, package-manager checks, optional installers, and command validation.
 - `scripts/lib/linking.sh` owns directory creation, backup behavior, and all symlink creation through `link_file` and `link_dir`.
+- `scripts/lib/private-overrides.sh` owns private repo resolution (`PRIVATE_REPO_ROOT`, `DEV_ENV_PRIVATE_REPO`, then `../dev-environment-private`), private override linking and scaffolding, and generated Starship/Ghostty config. It ignores a private repo that is a copy of this public repo and skips overrides that source their own managed path.
+- `scripts/te` is the user-facing CLI wrapping setup, tmux, `doctor`, and `paths`.
 
 Package manifests are intentionally separate from dotfiles:
 
@@ -133,7 +137,7 @@ That private overlay is where personal project names, local defaults, private pa
 
 Wrapper discovery is expected to work like this:
 
-1. public templates from `dev-environment/tmux/`
+1. public templates from this repo's `tmux/`
 2. sibling private overlay repo templates if the overlay exists
 3. private definitions can extend or override public ones by name
 

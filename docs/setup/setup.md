@@ -9,7 +9,7 @@ Before you start:
 - Clone this repository locally.
 - Make sure you have internet access for package downloads.
 - Run the script as a user with `sudo` access on Ubuntu or WSL.
-- Start from the repo root: `cd /path/to/dev-environment`
+- Start from the repo root: `cd /path/to/GatorTeef`
 
 Platform-specific prerequisites:
 
@@ -193,7 +193,7 @@ Default location:
 ../dev-environment-private/
 ```
 
-You can override that path with `DEV_ENV_PRIVATE_REPO=/path/to/dev-environment-private`.
+You can override that path with `PRIVATE_REPO_ROOT=/path/to/dev-environment-private` (or `DEV_ENV_PRIVATE_REPO`; `PRIVATE_REPO_ROOT` wins if both are set).
 
 Supported private override paths:
 

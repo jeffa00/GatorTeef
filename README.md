@@ -1,4 +1,4 @@
-# dev-environment
+# GatorTeef
 
 Bootstrap repo for a personal terminal/editor environment on macOS, Ubuntu, and Ubuntu on WSL. It installs the in-scope packages for each platform and links the tracked config in this repo into your home directory.
 
@@ -91,9 +91,11 @@ repos/
 └── dev-environment-private/   # private overlay (optional)
 ```
 
-- the default path is `../dev-environment-private`, resolved in `scripts/lib/private-overrides.sh` and `scripts/tmux-session.sh`
+- the default path is `../dev-environment-private`, resolved in `scripts/lib/private-overrides.sh` (used by setup, `te`, and `scripts/tmux-session.sh`)
 - the name is `dev-environment-private` even though this repo is now `gatorteef`; renaming the private repo (for example to `gatorteef-private`) breaks discovery unless you also set an override
-- to keep it somewhere else or under another name, set `PRIVATE_REPO_ROOT` or `DEV_ENV_PRIVATE_REPO` to its path
+- to keep it somewhere else or under another name, set `PRIVATE_REPO_ROOT` or `DEV_ENV_PRIVATE_REPO` to its path (`PRIVATE_REPO_ROOT` wins if both are set)
+- clone the private overlay repo there, not the old public `dev-environment` repo: a private repo that is really a copy of this repo is detected and ignored (setup warns, `te doctor` flags it), because treating it as an overlay makes every config file source itself
+- private override files should only contain additions; setup skips any override that sources its own `~/.config/dev-environment/private/...` path, and the public shell files load only once per shell as a backstop
 - `te doctor` and `te paths` report the resolved private repo root and whether it was found
 - `$HOME/.config/dev-environment/private/...` paths in the shell, tmux, and Neovim configs are where setup links the private override files; they are not the repo's location
 

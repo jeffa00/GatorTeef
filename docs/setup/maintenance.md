@@ -5,7 +5,7 @@
 Run maintenance from the repo root:
 
 ```bash
-cd /path/to/dev-environment
+cd /path/to/GatorTeef
 bash scripts/setup.sh --dry-run
 bash scripts/setup.sh
 ```
@@ -38,7 +38,7 @@ Extra backup behavior:
 When the tracked config changes:
 
 ```bash
-cd /path/to/dev-environment
+cd /path/to/GatorTeef
 git pull --ff-only
 bash scripts/setup.sh --dry-run
 bash scripts/setup.sh
