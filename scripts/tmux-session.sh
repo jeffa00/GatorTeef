@@ -4,8 +4,6 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PUBLIC_TMUX_DIR="$REPO_ROOT/tmux"
-PRIVATE_REPO_ROOT="${DEV_ENV_PRIVATE_REPO:-$REPO_ROOT/../dev-environment-private}"
-PRIVATE_TMUX_DIR="$PRIVATE_REPO_ROOT/tmux"
 TMUXINATOR_CONFIG_ROOT=""
 TMPDIR_PATH=""
 ATTACH_TARGET=""
@@ -13,6 +11,12 @@ COMMAND="${1:-}"
 shift || true
 
 source "$SCRIPT_DIR/lib/common.sh"
+source "$SCRIPT_DIR/lib/private-overrides.sh"
+
+# Same private repo resolution as setup: PRIVATE_REPO_ROOT, then
+# DEV_ENV_PRIVATE_REPO, then the ../dev-environment-private sibling.
+PRIVATE_REPO_ROOT="$(dev_env_private_repo_root)"
+PRIVATE_TMUX_DIR="$PRIVATE_REPO_ROOT/tmux"
 
 ENTRY_TEMPLATES=()
 ENTRY_NAMES=()
@@ -44,11 +48,13 @@ cleanup() {
 
 trap cleanup EXIT
 
+# Ignores a private repo that is really a copy of this public repo.
 private_repo_present() {
-  [ -d "$PRIVATE_REPO_ROOT" ]
+  private_repo_available
 }
 
 defaults_file_path() {
+  private_repo_present || return 0
   if [ -f "$PRIVATE_TMUX_DIR/defaults.yaml" ]; then
     printf '%s\n' "$PRIVATE_TMUX_DIR/defaults.yaml"
   elif [ -f "$PRIVATE_TMUX_DIR/defaults.yml" ]; then
