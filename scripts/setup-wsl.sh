@@ -139,6 +139,8 @@ else
   warn "Windows Terminal settings were not applied. Re-run with --apply-windows-terminal to link the tracked template."
 fi
 
+sync_neovim_plugins
+
 log "Validating installed tools"
 validate_command tmux
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then

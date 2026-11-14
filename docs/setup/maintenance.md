@@ -48,6 +48,8 @@ If you are on WSL and manage Windows Terminal from this repo, re-run with `--app
 
 Because the home paths are symlinks into this repo, many changes take effect as soon as the repo files change. Re-running is still the right step after updates because it refreshes packages, restores any missing links, regenerates composed config files, and applies optional targets again.
 
+Setup also runs `Lazy! restore` headlessly so installed Neovim plugins match the commits pinned in `dotfiles/shared/nvim/lazy-lock.json`. Pulling a new lockfile alone doesn't move plugins that are already installed, and that drift shows up as plugin errors (for example Telescope failing to load a module). The output goes to `~/.cache/dev-environment/lazy-restore.log`; a failure only warns, and you can rerun `:Lazy restore` inside Neovim.
+
 ## If destination files already exist
 
 Expected conflict handling:

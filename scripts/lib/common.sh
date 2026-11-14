@@ -232,6 +232,37 @@ install_neovim_linux() {
   export PATH="$HOME/.local/bin:$PATH"
 }
 
+# Bring installed Neovim plugins to the commits pinned in lazy-lock.json.
+# Pulling a new lockfile doesn't move already-installed plugins, and the
+# drift shows up as confusing plugin errors. Run after the Neovim config and
+# the optional .NET marker are linked so the plugin set is final. Failures
+# only warn: setup should still finish if a plugin fetch hiccups.
+sync_neovim_plugins() {
+  local log_dir
+  local log_file
+
+  if ! command_exists nvim; then
+    warn "nvim is not on PATH; skipping Neovim plugin sync"
+    return
+  fi
+
+  log_dir="$HOME/.cache/dev-environment"
+  log_file="$log_dir/lazy-restore.log"
+
+  if [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "nvim --headless \"+Lazy! restore\" +qa > $log_file"
+    return
+  fi
+
+  log "Syncing Neovim plugins to lazy-lock.json (first run can take a few minutes)"
+  mkdir -p "$log_dir"
+  if nvim --headless "+Lazy! restore" +qa </dev/null >"$log_file" 2>&1; then
+    log "Neovim plugins match lazy-lock.json (log: $log_file)"
+  else
+    warn "Neovim plugin sync failed; see $log_file, or run :Lazy restore inside Neovim"
+  fi
+}
+
 install_dotnet_macos() {
   if brew list --formula dotnet >/dev/null 2>&1; then
     log ".NET SDK already installed through Homebrew"

@@ -72,6 +72,8 @@ if [ -e "$HOME/.config/ghostty/config" ] && [ ! -L "$HOME/.config/ghostty/config
   backup_path "$HOME/.config/ghostty/config"
 fi
 
+sync_neovim_plugins
+
 log "Validating installed tools"
 validate_command tmux
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then

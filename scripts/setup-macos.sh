@@ -85,6 +85,8 @@ fi
 
 manage_ghostty_macos "$GHOSTTY_CONFIG_PATH"
 
+sync_neovim_plugins
+
 log "Validating installed tools"
 validate_command tmux
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
