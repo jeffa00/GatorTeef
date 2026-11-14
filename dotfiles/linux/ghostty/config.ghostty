@@ -21,5 +21,8 @@ window-padding-balance = true
 
 window-save-state = always
 
-background-opacity = 0.8
+# Opaque by default: Ghostty can't blur the background on GNOME, so
+# translucency there is just see-through and hurts readability. Override
+# in the private repo if your compositor supports blur (e.g. KDE Plasma).
+background-opacity = 1.0
 
