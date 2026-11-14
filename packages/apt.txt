@@ -6,6 +6,5 @@ fzf
 git
 ripgrep
 software-properties-common
-tree-sitter-cli
 tmux
 unzip

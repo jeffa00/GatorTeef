@@ -232,6 +232,71 @@ install_neovim_linux() {
   export PATH="$HOME/.local/bin:$PATH"
 }
 
+# The tree-sitter CLI on Linux/WSL also comes from the official release
+# instead of apt: nvim-treesitter compiles parsers with `tree-sitter build`
+# and needs 0.26.1+, but Ubuntu 24.04-based distros (Pop!_OS) ship 0.20.8,
+# which has no `build` subcommand, so no parsers get installed.
+# Digests are the sha256 values GitHub publishes for each release asset.
+TREE_SITTER_VERSION="0.27.1"
+
+tree_sitter_linux_asset() {
+  case "$(uname -m)" in
+    x86_64|amd64)
+      printf '%s %s\n' "tree-sitter-linux-x64" "d01042f94ba3d6827ddc9788e235f75d8366431be42bdf90ade534d960c98b7d"
+      ;;
+    aarch64|arm64)
+      printf '%s %s\n' "tree-sitter-linux-arm64" "404be5d54a4955571c4067c21d4699660eab3a534cefb0659341b207f7139ec5"
+      ;;
+    *)
+      die "No tree-sitter release binary for architecture: $(uname -m)"
+      ;;
+  esac
+}
+
+install_tree_sitter_linux() {
+  local asset_name
+  local asset_sha256
+  local install_root
+  local url
+  local temp_dir
+  local archive
+
+  read -r asset_name asset_sha256 < <(tree_sitter_linux_asset)
+  install_root="$HOME/.local/opt/tree-sitter-$TREE_SITTER_VERSION"
+  url="https://github.com/tree-sitter/tree-sitter/releases/download/v$TREE_SITTER_VERSION/$asset_name.gz"
+
+  if [ -x "$install_root/tree-sitter" ]; then
+    log "tree-sitter $TREE_SITTER_VERSION already installed in $install_root"
+  elif [ "${DRY_RUN:-0}" -eq 1 ]; then
+    log "curl -fsSL -o <temp>/$asset_name.gz $url"
+    log "verify sha256 $asset_sha256"
+    log "gunzip <temp>/$asset_name.gz into $install_root/tree-sitter"
+    log "ln -s $install_root/tree-sitter $HOME/.local/bin/tree-sitter"
+    return
+  else
+    temp_dir="$(mktemp -d)"
+    trap 'rm -rf "$temp_dir"' RETURN
+    archive="$temp_dir/$asset_name.gz"
+
+    run curl -fsSL -o "$archive" "$url"
+    log "Verifying sha256 of $asset_name.gz"
+    # die exits without firing the RETURN trap, so clean up explicitly first.
+    if ! printf '%s  %s\n' "$asset_sha256" "$archive" | sha256sum -c --quiet -; then
+      rm -rf "$temp_dir"
+      die "Checksum mismatch for $url"
+    fi
+    run gunzip "$archive"
+    run chmod +x "$temp_dir/$asset_name"
+    run mkdir -p "$install_root"
+    run mv "$temp_dir/$asset_name" "$install_root/tree-sitter"
+    run rm -rf "$temp_dir"
+    trap - RETURN
+  fi
+
+  link_file "$install_root/tree-sitter" "$HOME/.local/bin/tree-sitter"
+  export PATH="$HOME/.local/bin:$PATH"
+}
+
 # Bring installed Neovim plugins to the commits pinned in lazy-lock.json.
 # Pulling a new lockfile doesn't move already-installed plugins, and the
 # drift shows up as confusing plugin errors. Run after the Neovim config and

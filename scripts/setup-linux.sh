@@ -16,6 +16,7 @@ run sudo apt-get update
 run xargs -a "$REPO_ROOT/packages/apt.txt" sudo apt-get install -y
 install_starship
 install_neovim_linux
+install_tree_sitter_linux
 
 if [ "${INSTALL_TMUXINATOR:-0}" -eq 1 ]; then
   log "Installing optional tmux workspace backend"
@@ -86,5 +87,6 @@ if [ "${ENABLE_DOTNET_NVIM:-0}" -eq 1 ] && [ "${INSTALL_DOTNET:-0}" -eq 0 ]; the
   validate_command dotnet
 fi
 validate_command nvim
+validate_command tree-sitter
 validate_command ghostty
 validate_command starship
