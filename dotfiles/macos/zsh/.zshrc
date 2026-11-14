@@ -1,3 +1,10 @@
+# Load once per shell so a private override that sources this file (or
+# itself) cannot recurse. Not exported on purpose.
+if [ -n "${_GATORTEEF_ZSHRC_LOADED:-}" ]; then
+  return
+fi
+_GATORTEEF_ZSHRC_LOADED=1
+
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export PAGER="less -FRX"

@@ -3,6 +3,14 @@ case $- in
   *) return ;;
 esac
 
+# Load once per shell so a private override that sources this file (or
+# itself) cannot recurse until bash crashes. Not exported on purpose: child
+# shells should load their own copy.
+if [ -n "${_GATORTEEF_BASHRC_LOADED:-}" ]; then
+  return
+fi
+_GATORTEEF_BASHRC_LOADED=1
+
 export EDITOR="nvim"
 export VISUAL="$EDITOR"
 export PAGER="less -FRX"

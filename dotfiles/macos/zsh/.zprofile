@@ -1,3 +1,10 @@
+# Load once per shell so a private override that sources this file (or
+# itself) cannot recurse. Not exported on purpose.
+if [ -n "${_GATORTEEF_ZPROFILE_LOADED:-}" ]; then
+  return
+fi
+_GATORTEEF_ZPROFILE_LOADED=1
+
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 if [ -x /opt/homebrew/bin/brew ]; then
